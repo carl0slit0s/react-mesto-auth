@@ -1,0 +1,9 @@
+.photo-card__like-count {
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  line-height: 16px;
+  margin-top: 3px;
+  color: #000;
+
+}

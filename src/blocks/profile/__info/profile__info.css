@@ -1,0 +1,25 @@
+.profile__info {
+  max-width: 400px;
+  margin-right: 10px;
+  display: grid;
+  flex-direction: column;
+  position: relative;
+  align-items: baseline;
+  text-align: center;
+  justify-items: start;
+  grid-template-areas:
+    "name edit-button"
+    "about about";
+}
+
+@media screen and (max-width: 767px) {
+  .profile__info {
+    margin-right: 0;
+    max-width: 70%;
+    margin-bottom: 32px;
+    align-items: center;
+    grid-template-areas:
+      "name"
+      "about";
+  }
+}

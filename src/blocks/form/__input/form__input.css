@@ -1,0 +1,25 @@
+.form__input {
+  padding: 0 0 8px;
+  color: #000;
+  font-size: 14px;
+  line-height: 17px;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  /* margin: 0 0 30px; */
+  box-sizing: border-box;
+}
+
+/* .form__input:last-of-type {
+  margin-bottom: 52px;
+} */
+
+.form__input:focus {
+  border-color: cadetblue;
+  outline: none;
+}
+
+/* @media screen and (max-width: 767px) {
+  .form__input:last-of-type {
+    margin-bottom: 45px;
+  }
+} */

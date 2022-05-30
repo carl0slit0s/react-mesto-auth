@@ -1,0 +1,8 @@
+.popup-notify {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 430px;
+  height: 330px;
+  padding: 0 32px;
+}

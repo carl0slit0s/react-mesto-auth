@@ -1,0 +1,21 @@
+.photo-card__photo {
+  width: 282px;
+  height: 282px;
+  object-fit: cover;
+  cursor: pointer;
+  background-color: darkgrey;
+}
+
+.photo-card__photo:before {
+  content: "ошибка изображения";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgb(230, 230, 230);
+  font-size: 16px;
+  color: black;
+  text-align: center;
+}

@@ -1,0 +1,9 @@
+.profile__overlay {
+  margin: 0 30px 0 0;
+  width: 120px;
+  height: 120px;
+  background-image: url(../../../images/vector_img/pen.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 26px 26px;
+}
