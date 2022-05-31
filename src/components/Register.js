@@ -43,6 +43,7 @@ export default function Register(props) {
         <label className='form__field form__field_auth'>
           <input
             name='password'
+            type='password'
             onChange={handleChange}
             className='form__input form__input_auth'
             placeholder='Пароль'

@@ -33,34 +33,52 @@ function App() {
   const [cards, setCards] = useState([]);
   const [loggedIn, setLoggedIn] = useState(false);
 
-  const [isSuccsesAuthPopupOpen, setIsSuccsesAuthPopupOpen] = useState(false);
-  const [isErrorAuthPopupOpen, setIsErrorAuthPopupOpen] = useState(false);
+  const [isStatusAuthPopupOpen, setIsStatusAuthPopupOpen] = useState(false);
+  const [dataTooltip, setDataTooltip] = useState({ image: '', message: '' });
 
   const history = useHistory();
 
   useEffect(() => {
-    api
-      .getProfileData()
-      .then((profile) => {
-        setCurrentUser(profile);
-      })
-      .catch((err) => console.log(err));
+    if (loggedIn) {
+      api
+        .getProfileData()
+        .then((profile) => {
+          setCurrentUser(profile);
+        })
+        .catch((err) => console.log(err));
+
+      api
+        .getCards()
+        .then((cardList) => {
+          const formatedData = cardList.map((cardData) => ({
+            name: cardData.name,
+            link: cardData.link,
+            likes: cardData.likes,
+            _id: cardData._id,
+            ownerId: cardData.owner._id,
+          }));
+          setCards(formatedData);
+        })
+        .catch((err) => console.log(err));
+    }
   }, []);
 
   useEffect(() => {
-    api
-      .getCards()
-      .then((cardList) => {
-        const formatedData = cardList.map((cardData) => ({
-          name: cardData.name,
-          link: cardData.link,
-          likes: cardData.likes,
-          _id: cardData._id,
-          ownerId: cardData.owner._id,
-        }));
-        setCards(formatedData);
-      })
-      .catch((err) => console.log(err));
+    if (loggedIn) {
+      api
+        .getCards()
+        .then((cardList) => {
+          const formatedData = cardList.map((cardData) => ({
+            name: cardData.name,
+            link: cardData.link,
+            likes: cardData.likes,
+            _id: cardData._id,
+            ownerId: cardData.owner._id,
+          }));
+          setCards(formatedData);
+        })
+        .catch((err) => console.log(err));
+    }
   }, []);
 
   useEffect(() => {
@@ -158,8 +176,7 @@ function App() {
     setIsAddPlacePopupOpen(false);
     setIsEditAvatarPopupOpen(false);
     setIsAcceptDeletePopupOpen(false);
-    setIsSuccsesAuthPopupOpen(false);
-    setIsErrorAuthPopupOpen(false);
+    setIsStatusAuthPopupOpen(false);
     setSelectedCard({});
   };
 
@@ -168,28 +185,48 @@ function App() {
   };
 
   const handleLogin = ({ email, password }) => {
-    return auth.authorize(email, password).then((data) => {
+    return auth
+      .authorize(email, password)
+      .then((data) => {
         localStorage.setItem('token', data.token);
-        setCurrentUser({...currentUser, email})
+        setCurrentUser({ ...currentUser, email });
 
         tokenCheck();
-    });
+      })
+      .catch((err) => {
+        setDataTooltip({
+          image: errorImg,
+          message: 'Что-то пошло не так! Попробуйте ещё раз.',
+        });
+        setIsStatusAuthPopupOpen(true);
+        console.log(err);
+      });
   };
 
   const tokenCheck = () => {
-    if (localStorage.getItem('token')) {
-      let jwt = localStorage.getItem('token');
-      auth.getContent(jwt).then((res) => {
-        if (res) {
-          let userData = {
-            username: res.username,
-            email: res.email,
-          };
+    let jwt = localStorage.getItem('token');
+    if (jwt) {
+      auth
+        .getContent(jwt)
+        .then((res) => {
+          if (res) {
+            let userData = {
+              username: res.username,
+              email: res.email,
+            };
 
-          setLoggedIn(true);
-          history.push('/');
-        }
-      });
+            setLoggedIn(true);
+            history.push('/');
+          }
+        })
+        .catch((err) => {
+          setDataTooltip({
+            image: errorImg,
+            message: 'Что-то пошло не так! Попробуйте ещё раз.',
+          });
+          setIsStatusAuthPopupOpen(true);
+          console.log(err);
+        });
     }
   };
 
@@ -197,50 +234,58 @@ function App() {
     return auth
       .register(email, password)
       .then((data) => {
-        console.log(data)
-        const {email} = data.email
-        setCurrentUser({ ...currentUser, email })
-        setIsSuccsesAuthPopupOpen(true);
+        console.log(data);
+        const { email } = data.email;
+        setCurrentUser({ ...currentUser, email });
+        setDataTooltip({
+          image: successImg,
+          message: 'Регистрация прошла успешно',
+        });
+        setIsStatusAuthPopupOpen(true);
         history.push('/sign-in');
       })
       .catch(() => {
-        setIsErrorAuthPopupOpen(true);
+        setDataTooltip({
+          image: errorImg,
+          message: 'Что-то пошло не так! Попробуйте ещё раз.',
+        });
+        setIsStatusAuthPopupOpen(true);
       });
   };
 
   const handleOut = () => {
-    localStorage.removeItem('token')
+    localStorage.removeItem('token');
     setLoggedIn(false);
-    history.push('/sign-up');
-  }
+    history.push('/sign-in');
+  };
 
   return (
     <Switch>
       <CurrentUserContext.Provider value={currentUser}>
         <div className='content'>
-          <Header handleOut={handleOut} userData={currentUser}/>
-          <ProtectedRoute exact path='/' loggedIn={loggedIn}>
-            <Main
-              onEditAvatar={handleEditAvatarClick}
-              onEditProfile={handleEditProfileClick}
-              onAddPlace={handleAddPlaceClick}
-              onCardClick={handleCardClick}
-              onDeleteClick={handleAcceptDelete}
-              onCardDelete={handleCardDelete}
-              onCardLike={handleCardLike}
-              cards={cards}
-            />
-          </ProtectedRoute>
+          <Header handleOut={handleOut} userData={currentUser} />
+          <Switch>
+            <ProtectedRoute exact path='/' loggedIn={loggedIn}>
+              <Main
+                onEditAvatar={handleEditAvatarClick}
+                onEditProfile={handleEditProfileClick}
+                onAddPlace={handleAddPlaceClick}
+                onCardClick={handleCardClick}
+                onDeleteClick={handleAcceptDelete}
+                onCardDelete={handleCardDelete}
+                onCardLike={handleCardLike}
+                cards={cards}
+              />
+            </ProtectedRoute>
 
-          <Route path='/sign-up'>
-            {/* <Header children={<Link to='/sign-in'>Войти</Link>} /> */}
-            <Register handleRegister={handleRegister} />
-          </Route>
+            <Route path='/sign-up'>
+              <Register handleRegister={handleRegister} />
+            </Route>
 
-          <Route path='/sign-in'>
-            {/* <Header children={<Link to='/sign-up'>Регистрация</Link>}></Header> */}
-            <Login handleLogin={handleLogin} userData={currentUser} />
-          </Route>
+            <Route path='/sign-in'>
+              <Login handleLogin={handleLogin} userData={currentUser} />
+            </Route>
+          </Switch>
 
           <Footer />
           <EditProfilePopup
@@ -274,23 +319,16 @@ function App() {
           />
 
           <InfoTooltip
-            name={'auth-success'}
-            image={successImg}
-            massage={'Вы успешно зарегистрировались!'}
-            isOpen={isSuccsesAuthPopupOpen}
-            onClose={closeAllPopups}
-          />
-          <InfoTooltip
-            name={'auth-error'}
-            image={errorImg}
-            massage={'Что-то пошло не так! Попробуйте ещё раз.'}
-            isOpen={isErrorAuthPopupOpen}
+            image={dataTooltip.image}
+            message={dataTooltip.message}
+            name={'auth-status'}
+            isOpen={isStatusAuthPopupOpen}
             onClose={closeAllPopups}
           />
 
           <ImagePopup card={selectedCard} onClose={closeAllPopups} />
           <Route>
-            {loggedIn ? <Redirect to='/' /> : <Redirect to='/sign-up' />}
+            {loggedIn ? <Redirect to='/' /> : <Redirect to='/sign-in' />}
           </Route>
         </div>
       </CurrentUserContext.Provider>

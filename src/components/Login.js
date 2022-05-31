@@ -18,7 +18,6 @@ export default function Login(props) {
   const handleSubmit = (e) => {
     e.preventDefault();
     let { email, password } = formParams;
-    console.log(formParams)
     props.handleLogin({ email, password }).catch((err) => {
       setMessage(err.message);
     });
@@ -43,6 +42,7 @@ export default function Login(props) {
             placeholder='Пароль'
             value={formParams.password}
             name='password'
+            type='password'
           ></input>
         </label>
         <button          
