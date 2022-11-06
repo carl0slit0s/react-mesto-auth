@@ -1,3 +1,5 @@
+import { BASE_URL } from "./Auth";
+
 class Api {
   constructor(server, options) {
     this.options = options;
@@ -118,7 +120,7 @@ class Api {
   }
 }
 
-export const api = new Api('http://api.project-mesto72.nomoredomains.xyz/api', {
+export const api = new Api(BASE_URL, {
   // headers: {
   //   authorization: 'b14b5010-4fa1-4827-8329-0c3d4de2a70b',
   // },
